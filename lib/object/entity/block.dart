@@ -2,15 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_factory/cubit/game_event.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
-class Block extends GameObject {
+class Block extends GameObject with Renderable {
   Block({required super.size, required super.position, super.rotation = 0.0, super.z = 0});
-
-  @override
-  void onTick(double deltaTime, StreamController<GameEvent> eventBus) {
-    // Implement block-specific update logic here
-  }
 
   @override
   void render(Canvas canvas) {

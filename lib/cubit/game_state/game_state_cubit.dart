@@ -3,7 +3,7 @@ import 'dart:isolate';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_factory/cubit/game_event.dart';
 import 'package:flutter_factory/cubit/game_isolate.dart';
-import 'package:flutter_factory/cubit/game_state.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
 class GameStateCubit extends Cubit<GameState> {

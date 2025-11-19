@@ -3,13 +3,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_factory/cubit/game_state.dart';
-import 'package:flutter_factory/cubit/game_state_cubit.dart';
-import 'package:flutter_factory/object/block.dart';
-import 'package:flutter_factory/object/camera.dart';
-import 'package:flutter_factory/object/character.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
+import 'package:flutter_factory/cubit/game_state/game_state_cubit.dart';
+import 'package:flutter_factory/object/logical/add_object.dart';
+import 'package:flutter_factory/object/entity/block.dart';
+import 'package:flutter_factory/object/entity/camera.dart';
+import 'package:flutter_factory/object/entity/character.dart';
 import 'package:flutter_factory/object/game_object.dart';
-import 'package:flutter_factory/object/zoom_listener.dart';
+import 'package:flutter_factory/object/logical/input.dart';
 import 'package:flutter_factory/viewport/game_painter.dart';
 import 'package:flutter_factory/widgets/input_listener.dart';
 import 'package:provider/provider.dart';
@@ -94,18 +95,24 @@ class _MyHomePageState extends State<MyHomePage> {
     gameObjects![0] =
         {}..addEntries(
           [
+            Zoom(),
+            AddObject(),
+            KeyboardInput(),
+            PointerInput(),
             for (int j = -5; j <= 5; j++)
               for (int k = -5; k <= 5; k++)
                 if (j != 0 || k != 0)
-                  Block(size: Size.square(50), position: Offset(j * 50.0, k * 50.0)),
-            ZoomListener(),
+                  Block(
+                    size: Size.square(50),
+                    position: Offset(j * 50.0, k * 50.0),
+                  ),
+            
           ].map((e) => MapEntry(e.uid, e)),
         );
     gameObjects![1000] =
         {}..addEntries(
-          [
-            Character(size: Size.square(50), position: Offset.zero, rotation: 0),
-          ].map((e) => MapEntry(e.uid, e)),
+          [Character(size: Size.square(50), position: Offset.zero, rotation: 0)]
+              .map((e) => MapEntry(e.uid, e)),
         );
     gameObjects![2000] =
         {}..addEntries(
@@ -123,32 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
             value: GameStateCubit(
               GameState(
                 gameObjects: gameObjects!,
-                // SplayTreeMap.fromIterable([
-                //         for (int j = -5; j <= 5; j++)
-                //           for (int k = -5; k <= 5; k++)
-                //             if (j != 0 || k != 0)
-                //               Block(
-                //                 size: 50,
-                //                 position: Offset(j * 50.0, k * 50.0),
-                //               ),
-
-                //         Character(size: 50, position: Offset.zero, rotation: 0),
-                //         ZoomListener(),
-                //       ].map((e) => MapEntry(e.uid, e)), key: (element) => element.value.z, value: (element) =>
-                //     {}..addEntries(
-                //       [
-                //         for (int j = -5; j <= 5; j++)
-                //           for (int k = -5; k <= 5; k++)
-                //             if (j != 0 || k != 0)
-                //               Block(
-                //                 size: 50,
-                //                 position: Offset(j * 50.0, k * 50.0),
-                //               ),
-
-                //         Character(size: 50, position: Offset.zero, rotation: 0),
-                //         ZoomListener(),
-                //       ].map((e) => MapEntry(e.uid, e)),
-                //     ),
               ),
             ),
           ),
@@ -160,9 +141,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: constraints.maxHeight,
                 width: constraints.maxWidth,
                 // constraints: constraints,
-                child: GamePaint(
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
+                child: Stack(
+                  children: [
+                    GamePaint(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                    ),
+
+                    //inventory bar
+                    Positioned(
+                      bottom: 20,
+                      width: constraints.maxWidth,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          IconButton(onPressed: () {}, icon: Icon(Icons.add), isSelected: true,),
+                          IconButton(onPressed: () {}, icon: Icon(Icons.remove)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:isolate';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_factory/cubit/game_event.dart';
-import 'package:flutter_factory/cubit/game_state_cubit.dart';
-import 'package:flutter_factory/cubit/game_state.dart';
+import 'package:flutter_factory/cubit/game_state/game_state_cubit.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
 class GameIsolate {
@@ -51,9 +52,8 @@ class GameIsolate {
         print("Received non-GameState message in main isolate");
       }
     });
-  }
+  }  
 
-  static GameState _currentState = GameState(gameObjects: SplayTreeMap<int, Map<String, GameObject>>());
   static late final SendPort _sendPort;
 
   static final StreamController<GameEvent> _eventBus =
@@ -95,7 +95,9 @@ class GameIsolate {
     _lastUpdateTime = currentTime;
 
     // Update game objects
-    for (var gameObject in _currentState.gameObjects.values.expand((map) => map.values)) {
+    for (var gameObject in GameState.current.gameObjects.values.expand(
+      (map) => map.values.whereType<Tickable>(),
+    )) {
       gameObject.onTick(_deltaTime, _eventBus);
     }
     int currentTimeEnd = DateTime.now().microsecondsSinceEpoch;
@@ -114,13 +116,13 @@ class GameIsolate {
   static void _handleEventBus(GameEvent event) {
     switch (event) {
       case HandlerEvent():
-        _currentState = event.handle(_currentState, _eventBus);
+        GameState.current = event.handle(GameState.current, _eventBus);
         break;
       case GameEvent():
         // _eventBus.add(event);
         break;
     }
-    _sendPort.send(_currentState);
+    _sendPort.send(GameState.current);
   }
 
   static void _handleMessage(dynamic message) {
@@ -129,16 +131,16 @@ class GameIsolate {
       print("Isolate received: $message");
     }
     if (message is GameState) {
-      _currentState = message;
+      GameState.current = message;
 
-      for (var gameObject in _currentState.gameObjects.values.expand(
+      for (var gameObject in GameState.current.gameObjects.values.expand(
         (map) => map.values,
       )) {
         gameObject.unregisterListeners();
         gameObject.registerListeners(_eventBus);
       }
 
-      _sendPort.send(_currentState);
+      _sendPort.send(GameState.current);
       return;
     }
     if (message is! GameEvent) {
@@ -149,13 +151,13 @@ class GameIsolate {
 
     switch (event) {
       case HandlerEvent():
-        _currentState = event.handle(_currentState, _eventBus);
+        GameState.current = event.handle(GameState.current, _eventBus);
         break;
       case GameEvent():
         _eventBus.add(event);
         break;
     }
 
-    _sendPort.send(_currentState);
+    _sendPort.send(GameState.current);
   }
 }

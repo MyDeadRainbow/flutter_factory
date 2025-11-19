@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_factory/cubit/game_state.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
 abstract class GameEvent {}
@@ -11,10 +11,10 @@ abstract class HandlerEvent extends GameEvent {
 }
 
 class KeyboardGameEvent extends GameEvent {
-  final KeyEvent? keyEvent;
-  final LogicalKeyboardKey? logicalKey;
+  final KeyEvent keyEvent;
+  final LogicalKeyboardKey logicalKey;
 
-  KeyboardGameEvent({this.keyEvent, this.logicalKey});
+  KeyboardGameEvent({required this.keyEvent, required this.logicalKey});
 }
 
 class PointerGameEvent extends GameEvent {
@@ -24,6 +24,13 @@ class PointerGameEvent extends GameEvent {
   final Offset centerOffset;
 
   PointerGameEvent({required this.pointerEvent, required this.viewportSize, required this.zoom, required this.centerOffset});
+}
+
+class InputEvent extends GameEvent {
+  final String inputType;
+  final dynamic data;
+
+  InputEvent({required this.inputType, this.data});
 }
 
 class AddGameObject extends HandlerEvent {

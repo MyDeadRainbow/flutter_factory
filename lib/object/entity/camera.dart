@@ -3,9 +3,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter_factory/cubit/game_event.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
-class Camera extends GameObject {
+class Camera extends GameObject with Tickable {
   Offset targetPosition;
   double panSpeed;
 
@@ -55,18 +56,16 @@ class Camera extends GameObject {
     //     newGameObject: this.copyWith(position: newPosition),
     //   ),
     // );
-    eventBus.add(
-      ModifyStateEvent(
-        modify: (state) => state..centerOffset = newPosition,
-        // state.copyWith(
-        //   centerOffset: newPosition,
-        // ),
-      ),
-    );
+    GameState.current.centerOffset = newPosition;
+    // eventBus.add(
+    //   ModifyStateEvent(
+    //     modify: (state) => state..centerOffset = newPosition,
+    //     // state.copyWith(
+    //     //   centerOffset: newPosition,
+    //     // ),
+    //   ),
+    // );
   }
-
-  @override
-  void render(Canvas canvas) {}
 
   Camera copyWith({
     Offset? targetPosition,

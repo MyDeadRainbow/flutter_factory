@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_factory/cubit/game_state_cubit.dart';
+import 'package:flutter_factory/cubit/game_state/game_state_cubit.dart';
 import 'package:flutter_factory/object/game_object.dart';
 
 class GamePainter extends CustomPainter {
@@ -17,7 +17,7 @@ class GamePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawColor(Colors.black, BlendMode.srcOver);
-    for (final gameObject in gameObjects) {
+    for (final gameObject in gameObjects.whereType<Renderable>()) {
       gameObject.paint(canvas, size, zoom, centerOffset);
     }
   }

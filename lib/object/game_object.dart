@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_factory/cubit/game_event.dart';
+import 'package:flutter_factory/cubit/game_state/game_state.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class GameObject {
@@ -41,9 +42,9 @@ abstract class GameObject {
     _subscriptions.clear();
   }
 
-  void onTick(double deltaTime, StreamController<GameEvent> eventBus);
+  // void onTick(double deltaTime, StreamController<GameEvent> eventBus, GameState currentState);
 
-  void render(Canvas canvas);
+  // void render(Canvas canvas);
 
   void on<T extends GameEvent>(
     Function(T event, StreamController<GameEvent> eventBus) handler,
@@ -51,16 +52,16 @@ abstract class GameObject {
     eventHandlers[T] = (event, eventBus) => handler(event as T, eventBus);
   }
 
-  void paint(Canvas canvas, Size size, double zoom, Offset centerOffset) {
-    canvas.save();
-    canvas.translate(
-      size.width / 2 + (centerOffset.dx + position.dx * zoom),
-      size.height / 2 - (centerOffset.dy + position.dy * zoom),
-    );
-    canvas.scale(zoom);
-    render(canvas);
-    canvas.restore();
-  }
+  // void paint(Canvas canvas, Size size, double zoom, Offset centerOffset) {
+  //   canvas.save();
+  //   canvas.translate(
+  //     size.width / 2 + (centerOffset.dx + position.dx * zoom),
+  //     size.height / 2 - (centerOffset.dy + position.dy * zoom),
+  //   );
+  //   canvas.scale(zoom);
+  //   render(canvas);
+  //   canvas.restore();
+  // }
 
   @override
   String toString() =>
@@ -79,4 +80,28 @@ abstract class GameObject {
 
   @override
   int get hashCode => size.hashCode ^ position.hashCode ^ rotation.hashCode;
+}
+
+mixin Tickable {
+  void onTick(
+    double deltaTime,
+    StreamController<GameEvent> eventBus
+  );
+}
+
+mixin Renderable {
+  void render(Canvas canvas);
+
+  Offset get position;
+
+  void paint(Canvas canvas, Size size, double zoom, Offset centerOffset) {
+    canvas.save();
+    canvas.translate(
+      size.width / 2 + (centerOffset.dx + position.dx * zoom),
+      size.height / 2 - (centerOffset.dy + position.dy * zoom),
+    );
+    canvas.scale(zoom);
+    render(canvas);
+    canvas.restore();
+  }
 }
